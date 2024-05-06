@@ -294,6 +294,10 @@ export function getReleaseName(action: Resolved<HelmRuntimeAction>) {
   return action.getSpec().releaseName || action.name
 }
 
+export function getDependencyUpdateArg(action: Resolved<HelmRuntimeAction>) {
+  return action.getSpec().dependencyUpdate === false ? [] : ["--dependency-update"]
+}
+
 /**
  * This is a dirty hack that allows us to resolve Helm template strings ad-hoc.
  * Basically this writes a dummy file to the chart, has Helm resolve it, and then deletes the file.
@@ -348,7 +352,7 @@ export async function renderHelmTemplateString({
           releaseName,
           "--namespace",
           namespace,
-          "--dependency-update",
+          ...getDependencyUpdateArg(action),
           ...(await getValueArgs({ action, valuesPath })),
           "--show-only",
           relPath,

@@ -51,6 +51,7 @@ interface HelmDeployActionSpec {
   releaseName?: string
   values: DeepPrimitiveMap
   valueFiles: string[]
+  dependencyUpdate?: boolean
 }
 
 const parameterValueSchema = () =>
@@ -193,6 +194,7 @@ export interface HelmPodRunActionSpec extends KubernetesCommonRunSpec {
   values: DeepPrimitiveMap
   valueFiles: string[]
   resource?: KubernetesTargetResourceSpec
+  dependencyUpdate?: boolean
 }
 
 // Maintaining this cache to avoid errors when `kubernetesRunPodSchema` is called more than once with the same `kind`.
