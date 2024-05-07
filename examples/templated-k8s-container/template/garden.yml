@@ -17,22 +17,26 @@ configs:
       - build.${parent.name}
 
     spec:
-      manifests:
-        - apiVersion: v1
-          kind: Service
-          metadata:
-            name: ${parent.name}
-            labels:
-              service: ${parent.name}
-          spec:
-            type: ClusterIP
-            ports:
-              - name: http
-                port: ${inputs.servicePort}
-                targetPort: http
-            selector:
-              service: ${parent.name}
+      files: 
+      - ../template/manifests/* # how i understood this
+      # - ${local.projectPath}/manifests/* # and this should work but throws an error
 
+      patchResources:
+        - kind: Service
+          name: my-service
+          patch:
+            metadata:
+              name: ${parent.name}
+              labels:
+                service: ${parent.name}
+            spec:
+              ports:
+                - name: http
+                  port: ${inputs.servicePort}
+              selector:
+                service: ${parent.name}
+
+      manifests:
         - apiVersion: apps/v1
           kind: Deployment
           metadata:
