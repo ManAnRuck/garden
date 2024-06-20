@@ -614,13 +614,13 @@ ${expectedIngressOutput}
 
     it("should return a --values arg for each valueFile configured", async () => {
       const action = await garden.resolveAction<HelmDeployAction>({ action: graph.getDeploy("api"), log, graph })
-      action["_config"].spec.valueFiles = ["foo.yaml", "bar.yaml"]
+      action["_config"].spec.valueFiles = ["values.yaml", "values2.yaml"]
 
       expect(await getValueArgs({ action, valuesPath: gardenValuesPath })).to.eql([
         "--values",
-        resolve(action.getBuildPath(), "foo.yaml"),
+        resolve(action.getBuildPath(), "values.yaml"),
         "--values",
-        resolve(action.getBuildPath(), "bar.yaml"),
+        resolve(action.getBuildPath(), "values2.yaml"),
         "--values",
         gardenValuesPath,
       ])
@@ -628,11 +628,11 @@ ${expectedIngressOutput}
 
     it("should allow relative paths for valueFiles", async () => {
       const action = await garden.resolveAction<HelmDeployAction>({ action: graph.getDeploy("api"), log, graph })
-      action["_config"].spec.valueFiles = ["../relative.yaml"]
+      action["_config"].spec.valueFiles = ["../artifacts/values.yaml"]
 
       expect(await getValueArgs({ action, valuesPath: gardenValuesPath })).to.eql([
         "--values",
-        resolve(action.getBuildPath(), "../relative.yaml"),
+        resolve(action.getBuildPath(), "../artifacts/values.yaml"),
         "--values",
         gardenValuesPath,
       ])

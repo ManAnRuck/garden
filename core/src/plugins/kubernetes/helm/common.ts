@@ -292,13 +292,28 @@ export async function getValueArgs({
 }) {
   // The garden-values.yml file (which is created from the `values` field in the module config) takes precedence,
   // so it's added to the end of the list.
-  const valueFiles = action
-    .getSpec()
-    .valueFiles.map((f) => resolve(action.getBuildPath(), f))
-    .concat([valuesPath])
+  const valueFiles = await Promise.all(
+    action.getSpec().valueFiles.map(async (f) => {
+      const pathViaBuildPath = resolve(action.getBuildPath(), f)
+      const pathViaEffectiveConfigFileLocation = resolve(action.effectiveConfigFileLocation(), f)
+
+      const path = (await pathExists(pathViaBuildPath))
+        ? pathViaBuildPath
+        : (await pathExists(pathViaEffectiveConfigFileLocation))
+          ? pathViaEffectiveConfigFileLocation
+          : null
+
+      if (!path) {
+        throw new ConfigurationError({
+          message: `${action.longDescription()} specifies a value file '${f}' that does not exist at '${pathViaBuildPath}' or '${pathViaEffectiveConfigFileLocation}'`,
+        })
+      }
+      return path
+    })
+  )
+  valueFiles.push(valuesPath)
 
   const args = flatten(valueFiles.map((f) => ["--values", f]))
-
   return args
 }
 
